@@ -16,15 +16,15 @@ func DistributedFRI() {
 
 	for i := 0; i < num_polys; i++ {
 		// Generate ith codeword
-		codewords[i] = []fr.Element{}
-
 		// put q in evaluation form
 		_p := make([]fr.Element, deg)
 		copy(_p, input[i])
 
-		d := new(fft.Domain)
+		d := new(fft.Domain) // REFACTOR
 		d.FFT(_p, fft.DIF)
 		fft.BitReverse(_p)
+
+		codewords[i] = _p
 	}
 
 	masterPolynomial := aggregate(codewords)
@@ -51,6 +51,8 @@ func DistributedFRI() {
 	fmt.Println(merkleRoot, proofSet, proofIndex, numLeaves)
 }
 
+// aggregate aggregates the input polynomials and returns a final polynomial.
+// The aggregation logic is in the pianist paper.
 func aggregate(m map[int][]fr.Element) []fr.Element {
 	var aggPoly []fr.Element
 	for _, poly := range m {
