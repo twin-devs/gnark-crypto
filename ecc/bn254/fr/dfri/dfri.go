@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/consensys/gnark-crypto/accumulator/merkletree"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
+	"github.com/consensys/gnark-crypto/ecc/bn254/fr/fft"
 	"hash"
 )
 
@@ -11,10 +12,19 @@ func DistributedFRI() {
 	input := make(map[int][]fr.Element)     // map[index]polynomial_in_coefficient_form
 	codewords := make(map[int][]fr.Element) // map[index]codeword
 	num_polys := len(input)
+	deg := 2
 
 	for i := 0; i < num_polys; i++ {
 		// Generate ith codeword
 		codewords[i] = []fr.Element{}
+
+		// put q in evaluation form
+		_p := make([]fr.Element, deg)
+		copy(_p, input[i])
+
+		d := new(fft.Domain)
+		d.FFT(_p, fft.DIF)
+		fft.BitReverse(_p)
 	}
 
 	masterPolynomial := aggregate(codewords)
